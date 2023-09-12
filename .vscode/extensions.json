@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "naumovs.color-highlight",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "alfnielsen.vsc-scaffolding",
+    "eamodio.gitlens",
+    "christian-kohler.npm-intellisense"
+  ]
+}
