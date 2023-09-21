@@ -1,6 +1,6 @@
 import React from 'react';
   
-  const App = React.lazy(() => import('.'));
+  const ErrorPage = React.lazy(() => import('.'));
   
   export const routes = [
   ];

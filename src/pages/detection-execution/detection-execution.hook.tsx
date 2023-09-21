@@ -1,8 +1,8 @@
 import React from 'react';
   
-  import { MainMenuProps } from './main-menu';
+  import { DetectionExecutionProps } from './detection-execution';
 
-  function useMainMenuHook(props: MainMenuProps) {
+  function useDetectionExecutionHook(props: DetectionExecutionProps) {
   
     const [count, setCount] = React.useState(0);
   
@@ -21,5 +21,5 @@ import React from 'react';
     };
   }
   
-  export default useMainMenuHook;
+  export default useDetectionExecutionHook;
   

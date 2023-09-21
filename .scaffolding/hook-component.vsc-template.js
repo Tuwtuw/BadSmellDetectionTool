@@ -75,7 +75,7 @@
           },
           {
             type: 'file',
-            name: (inputs) => `${toKebabCase(inputs.name)}.hook.ts`,
+            name: (inputs) => `${toKebabCase(inputs.name)}.hook.tsx`,
             content: (inputs) => `import React from 'react';
   
   import { ${toPascalCase(inputs.name)}Props } from './${toKebabCase(inputs.name)}';
@@ -116,7 +116,7 @@
           {
             type: 'file',
             name: (inputs) => `${toKebabCase(inputs.name)}.styles.ts`,
-            content: (inputs) => `import styled from 'styled-components';
+            content: (inputs) => `import {styled} from 'styled-components';
 
   
   export const ${toPascalCase(inputs.name)} = styled.div\`

@@ -1,9 +1,10 @@
 import React, { memo, ReactNode } from 'react';
-import { Layout, Menu } from 'antd';
+import { Button, Table, Typography } from 'antd';
+import { CodeOutlined } from '@ant-design/icons';
 
 import useMainMenuHook from './main-menu.hook';
 import * as styled from './main-menu.styles';
-import { App } from '../../components/app';
+import { Link } from 'react-router-dom';
 
 export interface MainMenuProps {
   /*
@@ -21,14 +22,25 @@ export interface MainMenuProps {
 }
 
 function MainMenu(props: MainMenuProps) {
-  const { children, className, style } = props;
-  const { Header, Content, Sider } = Layout;
+  const { className, style } = props;
 
-  const { count, increment, decrement } = useMainMenuHook(props);
+  const { Title } = Typography;
+
+  const { dataSourceMock, columnsMock } = useMainMenuHook(props);
 
   return (
     <styled.MainMenu className={`${className ?? ''}`.trim()} style={style}>
-      <App>Content</App>
+      <div className="content-centered">
+        <Title>Latest Issue Detections</Title>
+      </div>
+      <Table dataSource={dataSourceMock} columns={columnsMock} />
+      <div className="content-centered">
+        <Link to="/detect">
+          <Button icon={<CodeOutlined />} className={'button'}>
+            Run Issue Detection
+          </Button>
+        </Link>
+      </div>
     </styled.MainMenu>
   );
 }

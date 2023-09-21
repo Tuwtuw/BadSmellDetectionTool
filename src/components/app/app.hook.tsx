@@ -1,7 +1,8 @@
 import React, { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 
 import { AppProps } from './app';
-import { LineChartOutlined, AimOutlined, BugOutlined, CodeOutlined } from '@ant-design/icons';
+import { HomeOutlined, LineChartOutlined, AimOutlined, BugOutlined, CodeOutlined } from '@ant-design/icons';
 import { ItemType } from 'antd/lib/menu/hooks/useItems';
 
 function useAppHook(props: AppProps) {
@@ -16,10 +17,11 @@ function useAppHook(props: AppProps) {
 
   const items = React.useMemo(
     () => [
-      getItem('Metrics', 'metrics', <LineChartOutlined />),
-      getItem('Detection Strategies', 'strategies', <AimOutlined />),
-      getItem('Bad Smells', 'badsmells', <BugOutlined />),
-      getItem('Run Issue Detection', 'issuedetection', <CodeOutlined />),
+      getItem(<Link to="/">Home</Link>, 'home', <HomeOutlined />),
+      getItem(<Link to="/metrics">Metrics</Link>, 'metrics', <LineChartOutlined />),
+      getItem(<Link to="/strategies">Detection Strategies</Link>, 'strategies', <AimOutlined />),
+      getItem(<Link to="/badsmells">Bad Smells</Link>, 'badsmells', <BugOutlined />),
+      getItem(<Link to="/detect">Run Issue Detection</Link>, 'issuedetection', <CodeOutlined />),
     ],
     [getItem],
   );

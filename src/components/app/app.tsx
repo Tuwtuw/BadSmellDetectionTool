@@ -1,14 +1,11 @@
-import React, { memo, ReactNode } from 'react';
+import React, { memo } from 'react';
 import { Layout, Menu } from 'antd';
+import { Outlet } from 'react-router-dom';
 
 import useAppHook from './app.hook';
 import * as styled from './app.styles';
 
 export interface AppProps {
-  /*
-   * Defines component's children
-   */
-  children?: ReactNode;
   /*
    * Defines custom className
    */
@@ -20,7 +17,7 @@ export interface AppProps {
 }
 
 function App(props: AppProps) {
-  const { children, className, style } = props;
+  const { className, style } = props;
 
   const { Header, Content, Sider } = Layout;
 
@@ -33,7 +30,9 @@ function App(props: AppProps) {
         <Sider collapsible>
           <Menu items={items} />
         </Sider>
-        <Content>{children}</Content>
+        <Content className={`content`}>
+          <Outlet />
+        </Content>
       </Layout>
     </styled.App>
   );
