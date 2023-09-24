@@ -37,11 +37,11 @@ export interface CreatePageProps {
 }
 
 function CreatePage(props: CreatePageProps) {
-  const { children, className, style } = props;
+  const { className, style } = props;
 
   const { TextArea } = Input;
 
-  const { count, increment, decrement } = useCreatePageHook(props);
+  const { count } = useCreatePageHook(props);
 
   return (
     <styled.CreatePage className={`${className ?? ''}`.trim()} style={style}>

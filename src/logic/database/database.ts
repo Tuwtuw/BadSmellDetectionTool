@@ -1,14 +1,28 @@
 import * as sqlite3 from 'sqlite3';
-import { metricsTableCreate } from './initializationQueries';
+import {
+  metricsTableCreate,
+  detectionStrategiesTableCreate,
+  badSmellsTableCreate,
+  defaultDetectionStrategies,
+} from './initializationQueries';
 
-function firstTimeDatabaseInitialization() {
-  const db = new sqlite3.Database('./metrics.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
+import { Metric, DetectionStrategy, BadSmell } from '../types/index';
+
+export function firstTimeDatabaseInitialization() {
+  const db = new sqlite3.Database('./data.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
     if (err) {
       console.error(err);
     }
   });
 
+  // Initializing tables
+  db.run('PRAGMA foreign_keys = ON;');
   db.run(metricsTableCreate);
+  db.run(detectionStrategiesTableCreate);
+  db.run(badSmellsTableCreate);
+
+  // Inserting default values
+  // db.run(defaultDetectionStrategies);
 
   db.close((err) => {
     if (err) {
@@ -18,7 +32,60 @@ function firstTimeDatabaseInitialization() {
   });
 }
 
-firstTimeDatabaseInitialization();
+export const fetchAllMetrics = (): Metric[] => {
+  const db = new sqlite3.Database('./data.db', sqlite3.OPEN_READWRITE, (err) => {
+    if (err) {
+      console.error(err);
+    }
+  });
+
+  db.all<Metric>('SELECT * FROM metrics', [], (err, rows) => {
+    if (err) throw err;
+    console.log(rows);
+  });
+
+  db.close();
+  return [];
+};
+
+export const fetchAllDetectionStrategies = (): DetectionStrategy[] => {
+  const db = new sqlite3.Database('./data.db', sqlite3.OPEN_READWRITE, (err) => {
+    if (err) {
+      console.error(err);
+    }
+  });
+
+  db.all<DetectionStrategy>('SELECT * FROM detectionStrategies', [], (err, rows) => {
+    if (err) throw err;
+    console.log(rows);
+  });
+
+  db.close();
+
+  return [];
+};
+
+export const fetchAllBadSmells = (): BadSmell[] => {
+  return [];
+};
+
+function fetchGenericTableData<T>(table: string) {
+  const db = new sqlite3.Database('./data.db', sqlite3.OPEN_READWRITE, (err) => {
+    if (err) {
+      console.error(err);
+    }
+  });
+
+  db.all<T>(`SELECT * FROM ${table}`, [], (err, rows) => {
+    if (err) throw err;
+    console.log(rows);
+  });
+
+  db.close();
+}
+
+// firstTimeDatabaseInitialization();
+// fetchAllDetectionStrategies();
 
 // const db = new sqlite3.Database('./metrics.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
 //   if (err) {
