@@ -54,6 +54,9 @@ typings/
 # Output of 'npm pack'
 *.tgz
 
+# Sqlite db file
+*.db
+
 # Yarn Integrity file
 .yarn-integrity
 
