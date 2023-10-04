@@ -11,3 +11,8 @@ body {
   width: 100%;
   margin: auto;
 }
+
+#root {
+  height: 100%;
+  width: 100%;
+}
