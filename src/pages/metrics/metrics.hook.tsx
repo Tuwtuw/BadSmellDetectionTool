@@ -1,23 +1,15 @@
 import React from 'react';
 import { Space } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import { Metric } from '../../logic/types';
 
 import { MetricsProps } from './metrics';
-
-interface Metrics {
-  key: string;
-  name: string;
-  type: string;
-  description?: string;
-  min?: number;
-  max?: number;
-}
 
 function useMetricsHook(props: MetricsProps) {
   const [editModalOpen, setEditModalOpen] = React.useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
 
-  const columns: ColumnsType<Metrics> = [
+  const columns: ColumnsType<Metric> = [
     {
       title: 'Name',
       dataIndex: 'name',
@@ -67,9 +59,9 @@ function useMetricsHook(props: MetricsProps) {
     },
   ];
 
-  const data: Metrics[] = [
+  const data: Metric[] = [
     {
-      key: '1',
+      metric_id: 1,
       name: 'LOC (Lines of code)',
       type: 'Number',
       min: 0,
@@ -77,20 +69,20 @@ function useMetricsHook(props: MetricsProps) {
         "It counts the lines of count, ignoring empty lines and comments (i.e., it's Source Lines of Code, or SLOC). The number of lines here might be a bit different from the original file, as we use JDT's internal representation of the source code to calculate it.",
     },
     {
-      key: '2',
+      metric_id: 2,
       name: 'NOC (Number of Children)',
       type: 'Number',
       min: 0,
       description: 'It counts the number of immediate subclasses that a particular class has.',
     },
     {
-      key: '3',
+      metric_id: 3,
       name: 'Has Javadoc',
       type: 'Boolean',
       description: 'Boolean indicating whether a method has javadoc. (Only at method-level for now)',
     },
     {
-      key: '4',
+      metric_id: 4,
       name: 'Test Metric',
       min: 0,
       max: 1,

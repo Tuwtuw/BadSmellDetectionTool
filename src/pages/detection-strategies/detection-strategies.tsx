@@ -24,7 +24,8 @@ function DetectionStrategies(props: DetectionStrategiesProps) {
 
   const { Title } = Typography;
 
-  const { columns, data, deleteModalOpen, setDeleteModalOpen } = useDetectionStrategiesHook(props);
+  const { columns, detectionStrategies, deleteDetectionStrategy, deleteModalOpen, setDeleteModalOpen } =
+    useDetectionStrategiesHook();
 
   return (
     <styled.DetectionStrategies className={`${className ?? ''}`.trim()} style={style}>
@@ -33,8 +34,9 @@ function DetectionStrategies(props: DetectionStrategiesProps) {
         <Button>New Detection Strategy</Button>
       </div>
       <Table
-        dataSource={data}
+        dataSource={detectionStrategies}
         columns={columns}
+        rowKey={(record) => String(record.detectionStrategy_id)}
         bordered
         expandable={{
           expandedRowRender: (record) => {
@@ -50,7 +52,12 @@ function DetectionStrategies(props: DetectionStrategiesProps) {
         }}
         pagination={{ position: ['bottomCenter'] }}
       />
-      <Modal title="Are you sure?" open={deleteModalOpen} onCancel={() => setDeleteModalOpen(false)}>
+      <Modal
+        title="Are you sure?"
+        open={deleteModalOpen}
+        onCancel={() => setDeleteModalOpen(false)}
+        onOk={() => deleteDetectionStrategy()}
+      >
         <p>This action is irreversible.</p>
       </Modal>
     </styled.DetectionStrategies>

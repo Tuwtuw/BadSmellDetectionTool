@@ -9,7 +9,7 @@ export const metricsTableCreate = `CREATE TABLE IF NOT EXISTS metrics(
 
 export const detectionStrategiesTableCreate = `CREATE TABLE IF NOT EXISTS detectionStrategies(
   detectionStrategy_id INTEGER NOT NULL PRIMARY KEY, 
-  name TEXT NOT NULL UNIQUE, 
+  name TEXT NOT NULL UNIQUE,
   formula TEXT,
   description TEXT
 )`;
@@ -22,6 +22,17 @@ export const badSmellsTableCreate = `CREATE TABLE IF NOT EXISTS badSmells(
   description TEXT,
   FOREIGN KEY (detectionStrategy_id)
     REFERENCES detectionStrategies (detectionStrategy_id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE 
+)`;
+
+export const detectionStrategies_m2m_metricsCreate = ` CREATE TABLE IF NOT EXISTS detectionStrategies_m2m_metrics(
+  FOREIGN KEY (detectionStrategy_id)
+    REFERENCES detectionStrategies (detectionStrategy_id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE,
+  FOREIGN KEY (metric_id)
+    REFERENCES metrics (metric_id)
     ON DELETE SET NULL
     ON UPDATE CASCADE 
 )`;

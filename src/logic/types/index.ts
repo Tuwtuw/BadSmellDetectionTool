@@ -1,5 +1,5 @@
 export interface Metric {
-  key: string;
+  metric_id: number;
   name: string;
   type: string;
   description?: string;
@@ -8,14 +8,14 @@ export interface Metric {
 }
 
 export interface DetectionStrategy {
-  key: string;
+  detectionStrategy_id: number;
   name: string;
   formula: string;
   description?: string;
 }
 
 export interface BadSmell {
-  key: string;
+  badSmell_id: number;
   name: string;
   detectionStrategy: DetectionStrategy;
   scope: string;
