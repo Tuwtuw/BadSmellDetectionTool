@@ -3,6 +3,7 @@ import { Table, Modal, Typography, Button } from 'antd';
 
 import useMetricsHook from './metrics.hook';
 import * as styled from './metrics.styles';
+import { Link } from 'react-router-dom';
 
 export interface MetricsProps {
   /*
@@ -22,21 +23,29 @@ export interface MetricsProps {
 function Metrics(props: MetricsProps) {
   const { className, style } = props;
 
-  const { Title } = Typography;
+  const { Title, Text } = Typography;
 
-  const { columns, data, deleteModalOpen, setDeleteModalOpen } = useMetricsHook(props);
+  const { columns, metrics, deleteModalOpen, setDeleteModalOpen } = useMetricsHook(props);
   return (
     <styled.Metrics className={`${className ?? ''}`.trim()} style={style}>
       <div className="header">
         <Title>Metrics</Title>
-        <Button>New Metric</Button>
+        <Link to="/metrics/new">
+          <Button>New Metric</Button>
+        </Link>
       </div>
       <Table
-        dataSource={data}
+        dataSource={metrics}
         columns={columns}
+        rowKey={(record) => String(record.metric_id)}
         bordered
         expandable={{
-          expandedRowRender: (record) => <p style={{ margin: 0 }}>{record.description}</p>,
+          expandedRowRender: (record) => (
+            <>
+              <Text strong>Description</Text>
+              <p style={{ margin: 0 }}>{record.description}</p>
+            </>
+          ),
           rowExpandable: (record) => !!record.description,
         }}
         pagination={{ position: ['bottomCenter'] }}

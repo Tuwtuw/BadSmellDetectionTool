@@ -3,21 +3,34 @@ import { Space } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
 import { BadSmellsProps } from './bad-smells';
-import { DetectStrat } from '../detection-strategies';
-
-interface BadSmells {
-  key: string;
-  name: string;
-  detectionStrategy: DetectStrat;
-  scope: string;
-  description?: string;
-}
+import { BadSmell } from '../../logic/types';
+import { Link } from 'react-router-dom';
 
 function useBadSmellsHook(props: BadSmellsProps) {
   const [editModalOpen, setEditModalOpen] = React.useState(false);
+  const [badSmellToDeleteId, setBadSmellToDeleteId] = React.useState<number | undefined>(undefined);
+  const [badSmells, setBadSmells] = React.useState<BadSmell[]>(undefined);
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
 
-  const columns: ColumnsType<BadSmells> = [
+  React.useEffect(() => {
+    window.api.database.badSmell.fetchAll().then(
+      (data) => {
+        setBadSmells(data);
+      },
+      (error) => {
+        console.error(error);
+      },
+    );
+  }, []);
+
+  const deleteBadSmell = React.useCallback(() => {
+    window.api.database.badSmell.delete(badSmellToDeleteId);
+    setBadSmells(badSmells.filter((badSmell) => badSmell.badSmell_id !== badSmellToDeleteId));
+    setBadSmellToDeleteId(undefined);
+    setDeleteModalOpen(false);
+  }, [badSmellToDeleteId]);
+
+  const columns: ColumnsType<BadSmell> = [
     {
       title: 'Name',
       dataIndex: 'name',
@@ -28,7 +41,7 @@ function useBadSmellsHook(props: BadSmellsProps) {
     {
       title: 'Current Detection Strategy',
       key: 'detectStrat',
-      render: (_, record) => record.detectionStrategy.name,
+      render: (_, record) => record.detectionStrategy?.name,
     },
     {
       title: 'Scope',
@@ -38,57 +51,31 @@ function useBadSmellsHook(props: BadSmellsProps) {
     {
       title: 'Action',
       key: 'action',
-      render: () => (
+      render: (_, record) => (
         <Space size="middle">
-          <a onClick={() => setEditModalOpen(!editModalOpen)}>Edit</a>
-          <a onClick={() => setDeleteModalOpen(!deleteModalOpen)}>Delete</a>
+          <Link to="/badsmells/edit" state={{ editTarget: record }}>
+            Edit
+          </Link>
+          <a
+            onClick={() => {
+              setBadSmellToDeleteId(record.badSmell_id);
+              setDeleteModalOpen(!deleteModalOpen);
+            }}
+          >
+            Delete
+          </a>
         </Space>
       ),
     },
   ];
 
-  const detectStrat: DetectStrat = { name: 'TestStrat' } as DetectStrat;
-
-  const data: BadSmells[] = [
-    {
-      key: '1',
-      name: 'Data Class',
-      detectionStrategy: detectStrat,
-      scope: 'Class',
-      description:
-        'A data class refers to a class that contains only fields and crude methods for accessing them (getters and setters). These are simply containers for data used by other classes. ',
-    },
-    {
-      key: '2',
-      name: 'Large Class',
-      detectionStrategy: detectStrat,
-      scope: 'Class',
-      description: 'A class contains many fields/methods/lines of code.',
-    },
-    {
-      key: '3',
-      name: 'Feature Envy',
-      detectionStrategy: detectStrat,
-      scope: 'Method',
-      description: 'A method accesses the data of another object more than its own data.',
-    },
-    {
-      key: '4',
-      name: 'Refused Bequest',
-      detectionStrategy: detectStrat,
-      scope: 'Class',
-      description:
-        'If a subclass uses only some of the methods and properties inherited from its parents. The unneeded methods may simply go unused or be redefined and give off exceptions.',
-    },
-  ];
-
   return {
     columns,
-    data,
     editModalOpen,
-    setEditModalOpen,
     deleteModalOpen,
+    setEditModalOpen,
     setDeleteModalOpen,
+    deleteBadSmell,
   };
 }
 

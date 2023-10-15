@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Layout, Menu } from 'antd';
+import { Layout, Menu, Typography } from 'antd';
 import { Outlet } from 'react-router-dom';
 
 import useAppHook from './app.hook';
@@ -20,12 +20,15 @@ function App(props: AppProps) {
   const { className, style } = props;
 
   const { Header, Content, Sider } = Layout;
+  const { Title } = Typography;
 
   const { items } = useAppHook(props);
 
   return (
     <styled.App className={`${className ?? ''}`.trim()} style={style}>
-      <Header>Header</Header>
+      <Header>
+        <Title level={2}>Bad Smell Detection Tool</Title>
+      </Header>
       <Layout hasSider>
         <Sider collapsible>
           <Menu items={items} />

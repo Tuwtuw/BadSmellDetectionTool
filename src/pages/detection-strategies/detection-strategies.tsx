@@ -3,6 +3,7 @@ import { Table, Modal, Typography, Button, Divider } from 'antd';
 
 import useDetectionStrategiesHook from './detection-strategies.hook';
 import * as styled from './detection-strategies.styles';
+import { Link } from 'react-router-dom';
 
 export interface DetectionStrategiesProps {
   /*
@@ -22,7 +23,7 @@ export interface DetectionStrategiesProps {
 function DetectionStrategies(props: DetectionStrategiesProps) {
   const { className, style } = props;
 
-  const { Title } = Typography;
+  const { Title, Text } = Typography;
 
   const { columns, detectionStrategies, deleteDetectionStrategy, deleteModalOpen, setDeleteModalOpen } =
     useDetectionStrategiesHook();
@@ -31,7 +32,9 @@ function DetectionStrategies(props: DetectionStrategiesProps) {
     <styled.DetectionStrategies className={`${className ?? ''}`.trim()} style={style}>
       <div className="header">
         <Title>Detection Strategies</Title>
-        <Button>New Detection Strategy</Button>
+        <Link to="/strategies/new">
+          <Button>New Detection Strategy</Button>
+        </Link>
       </div>
       <Table
         dataSource={detectionStrategies}
@@ -42,8 +45,10 @@ function DetectionStrategies(props: DetectionStrategiesProps) {
           expandedRowRender: (record) => {
             return (
               <div>
+                <Text strong>Description</Text>
                 <p style={{ margin: 0 }}>{record.description}</p>
                 <Divider />
+                <Text strong>Formula</Text>
                 <p style={{ margin: 0 }}>{record.formula}</p>
               </div>
             );

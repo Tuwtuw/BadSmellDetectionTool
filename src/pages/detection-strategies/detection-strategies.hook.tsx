@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { Space } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { DetectionStrategy } from '../../logic/types';
+import { Link } from 'react-router-dom';
 
 function useDetectionStrategiesHook() {
   const [editModalOpen, setEditModalOpen] = React.useState(false);
@@ -21,7 +22,6 @@ function useDetectionStrategiesHook() {
   }, []);
 
   const deleteDetectionStrategy = useCallback(() => {
-    console.log('Deleting id: ', detectionStrategyToDeleteId);
     window.api.database.detectionStrategy.delete(detectionStrategyToDeleteId);
     setDetectionStrategies(
       detectionStrategies.filter((strategy) => strategy.detectionStrategy_id !== detectionStrategyToDeleteId),
@@ -41,12 +41,13 @@ function useDetectionStrategiesHook() {
     {
       title: 'Action',
       key: 'action',
-      render: (text, record) => (
+      render: (_, record) => (
         <Space size="middle">
-          <a onClick={() => setEditModalOpen(!editModalOpen)}>Edit</a>
+          <Link to="/strategies/edit" state={{ editTarget: record }}>
+            Edit
+          </Link>
           <a
             onClick={() => {
-              console.log('Setting the following id:', record.detectionStrategy_id);
               setDetectionStrategyToDeleteId(record.detectionStrategy_id);
               setDeleteModalOpen(true);
             }}

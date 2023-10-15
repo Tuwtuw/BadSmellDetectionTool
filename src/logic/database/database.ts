@@ -4,6 +4,8 @@ import {
   detectionStrategiesTableCreate,
   badSmellsTableCreate,
   defaultDetectionStrategies,
+  defaultMetrics,
+  defaultBadSmells,
 } from './initializationQueries';
 import { app } from 'electron';
 
@@ -14,15 +16,22 @@ const databasePath = app.getPath('userData').concat('/data.db');
 export function firstTimeDatabaseInitialization() {
   const db = new sqlite3(databasePath);
 
-  // Initializing tables
-  db.pragma('journal_mode = WAL');
-  db.pragma('foreign_keys = ON');
-  db.prepare(metricsTableCreate).run();
-  db.prepare(detectionStrategiesTableCreate).run();
-  db.prepare(badSmellsTableCreate).run();
+  try {
+    // Initializing tables
+    db.pragma('journal_mode = WAL');
+    db.pragma('foreign_keys = ON');
+    db.prepare(metricsTableCreate).run();
+    db.prepare(detectionStrategiesTableCreate).run();
+    db.prepare(badSmellsTableCreate).run();
 
-  // Inserting default values
-  db.prepare(defaultDetectionStrategies).run();
+    // Inserting default values
+    db.prepare(defaultDetectionStrategies).run();
+    db.prepare(defaultMetrics).run();
+    db.prepare(defaultBadSmells).run();
+  } catch (error) {
+    console.error('Code: ', error.code);
+    console.error('Message: ', error.message);
+  }
 
   db.close();
 }
@@ -36,7 +45,8 @@ export const fetchAllMetrics = (): Metric[] => {
   try {
     metrics = db.prepare('SELECT * FROM metrics').all() as Array<Metric>;
   } catch (error) {
-    console.error(error);
+    console.error('Code: ', error.code);
+    console.error('Message: ', error.message);
   }
 
   db.close();
@@ -63,7 +73,8 @@ export const insertMetric = (
 
     createdMetric = db.prepare('SELECT * from metrics where metric_id=?').get(result.lastInsertRowid) as Metric;
   } catch (error) {
-    console.error(error);
+    console.error('Code: ', error.code);
+    console.error('Message: ', error.message);
   }
 
   db.close();
@@ -71,16 +82,29 @@ export const insertMetric = (
   return createdMetric;
 };
 
-export const editMetric = (metricId: number, metric: Metric) => {
+export const editMetric = (
+  metricId: number,
+  name: string,
+  type: string,
+  min?: number,
+  max?: number,
+  description?: string,
+) => {
   const db = new sqlite3(databasePath);
 
-  db.prepare('INSERT INTO metrics (name, type, min, max, description) VALUES (?, ?, ?, ?, ?)').run([
-    metric.name,
-    metric.type,
-    metric.min ?? '',
-    metric.max ?? '',
-    metric.description ?? '',
-  ]);
+  try {
+    db.prepare('UPDATE metrics SET name=?, type=?, min=?, max=?, description=? WHERE metric_id=?').run([
+      name,
+      type,
+      min ?? '',
+      max ?? '',
+      description ?? '',
+      metricId,
+    ]);
+  } catch (error) {
+    console.error('Code: ', error.code);
+    console.error('Message: ', error.message);
+  }
 
   db.close();
 };
@@ -88,7 +112,12 @@ export const editMetric = (metricId: number, metric: Metric) => {
 export const deleteMetric = (metricId: number) => {
   const db = new sqlite3(databasePath);
 
-  db.prepare('DELETE FROM metrics WHERE metric_id=?').run(metricId);
+  try {
+    db.prepare('DELETE FROM metrics WHERE metric_id=?').run(metricId);
+  } catch (error) {
+    console.error('Code: ', error.code);
+    console.error('Message: ', error.message);
+  }
 
   db.close();
 };
@@ -102,7 +131,8 @@ export const fetchAllDetectionStrategies = (): DetectionStrategy[] => {
   try {
     detectionStrategies = db.prepare('SELECT * FROM detectionStrategies').all() as Array<DetectionStrategy>;
   } catch (error) {
-    console.error(error);
+    console.error('Code: ', error.code);
+    console.error('Message: ', error.message);
   }
 
   db.close();
@@ -110,14 +140,51 @@ export const fetchAllDetectionStrategies = (): DetectionStrategy[] => {
   return detectionStrategies;
 };
 
-export const insertDetectionStrategy = (detectionStrategy: DetectionStrategy) => {
+export const insertDetectionStrategy = (
+  name: string,
+  formula: string,
+  description?: string,
+): DetectionStrategy | undefined => {
   const db = new sqlite3(databasePath);
 
-  db.prepare('INSERT INTO metrics (name, formula, description) VALUES (?, ?, ?)').run([
-    detectionStrategy.name,
-    detectionStrategy.formula,
-    detectionStrategy.description ?? '',
-  ]);
+  let createdDetectionStrategy: DetectionStrategy | undefined = undefined;
+  try {
+    const result = db
+      .prepare('INSERT INTO detectionStrategies (name, formula, description) VALUES (?, ?, ?)')
+      .run([name, formula, description ?? '']);
+
+    createdDetectionStrategy = db
+      .prepare('SELECT * from detectionStrategies where detectionStrategy_id=?')
+      .get(result.lastInsertRowid) as DetectionStrategy;
+  } catch (error) {
+    console.error('Code: ', error.code);
+    console.error('Message: ', error.message);
+  }
+
+  db.close();
+
+  return createdDetectionStrategy;
+};
+
+export const editDetectionStrategy = (
+  detectionStrategyId: number,
+  name: string,
+  formula: string,
+  description?: string,
+) => {
+  const db = new sqlite3(databasePath);
+
+  try {
+    db.prepare('UPDATE detectionStrategies SET name=?, formula=?, description=? WHERE detectionStrategy_id=?').run([
+      name,
+      formula,
+      description ?? '',
+      detectionStrategyId,
+    ]);
+  } catch (error) {
+    console.error('Code: ', error.code);
+    console.error('Message: ', error.message);
+  }
 
   db.close();
 };
@@ -130,21 +197,70 @@ export const deleteDetectionStrategy = (detectionStrategyId: number) => {
     db.close();
     return !!result.changes;
   } catch (error) {
-    console.error(error);
+    console.error('Code: ', error.code);
+    console.error('Message: ', error.message);
     db.close();
     return false;
   }
 };
 
-export const insertBadSmell = (badSmell: BadSmell) => {
+// Bad Smells database functions
+
+export const fetchAllBadSmells = (): BadSmell[] => {
   const db = new sqlite3(databasePath);
 
-  db.prepare('INSERT INTO metrics (name, scope, detectionStrategy, description) VALUES (?, ?, ?, ?)').run([
-    badSmell.name,
-    badSmell.scope,
-    badSmell.detectionStrategy.detectionStrategy_id ?? '',
-    badSmell.description ?? '',
-  ]);
+  let badSmells: Array<BadSmell> = [];
+  try {
+    badSmells = db.prepare('SELECT * FROM badSmells').all() as Array<BadSmell>;
+  } catch (error) {
+    console.error('Code: ', error.code);
+    console.error('Message: ', error.message);
+  }
+
+  db.close();
+
+  return badSmells;
+};
+
+export const insertBadSmell = (name: string, scope: string, detectionStrategyId?: number, description?: string) => {
+  const db = new sqlite3(databasePath);
+
+  try {
+    db.prepare('INSERT INTO metrics (name, scope, detectionStrategy, description) VALUES (?, ?, ?, ?)').run([
+      name,
+      scope,
+      detectionStrategyId ?? '',
+      description ?? '',
+    ]);
+  } catch (error) {
+    console.error('Code: ', error.code);
+    console.error('Message: ', error.message);
+  }
+
+  db.close();
+};
+
+export const editBadSmell = (
+  badSmellId: number,
+  name: string,
+  scope: string,
+  detectionStrategyId: number,
+  description?: string,
+) => {
+  const db = new sqlite3(databasePath);
+
+  try {
+    db.prepare('UPDATE badSmells SET name=?, scope=?, detectionStrategy_id=?, description=? WHERE badSmell_id=?').run([
+      name,
+      scope,
+      detectionStrategyId,
+      description ?? '',
+      badSmellId,
+    ]);
+  } catch (error) {
+    console.error('Code: ', error.code);
+    console.error('Message: ', error.message);
+  }
 
   db.close();
 };
@@ -152,7 +268,12 @@ export const insertBadSmell = (badSmell: BadSmell) => {
 export const deleteBadSmell = (badSmell_id: number) => {
   const db = new sqlite3(databasePath);
 
-  db.prepare('DELETE FROM badSmells WHERE badSmell_id=?').run(badSmell_id);
+  try {
+    db.prepare('DELETE FROM badSmells WHERE badSmell_id=?').run(badSmell_id);
+  } catch (error) {
+    console.error('Code: ', error.code);
+    console.error('Message: ', error.message);
+  }
 
   db.close();
 };

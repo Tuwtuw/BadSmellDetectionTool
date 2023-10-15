@@ -23,9 +23,9 @@ export interface BadSmellsProps {
 function BadSmells(props: BadSmellsProps) {
   const { className, style } = props;
 
-  const { Title } = Typography;
+  const { Title, Text } = Typography;
 
-  const { columns, data, deleteModalOpen, setDeleteModalOpen } = useBadSmellsHook(props);
+  const { columns, deleteModalOpen, setDeleteModalOpen } = useBadSmellsHook(props);
 
   return (
     <styled.BadSmells className={`${className ?? ''}`.trim()} style={style}>
@@ -36,11 +36,16 @@ function BadSmells(props: BadSmellsProps) {
         </Link>
       </div>
       <Table
-        dataSource={data}
+        dataSource={[]}
         columns={columns}
         bordered
         expandable={{
-          expandedRowRender: (record) => <p style={{ margin: 0 }}>{record.description}</p>,
+          expandedRowRender: (record) => (
+            <>
+              <Text strong>Description</Text>
+              <p style={{ margin: 0 }}>{record.description}</p>
+            </>
+          ),
           rowExpandable: (record) => !!record.description,
         }}
         pagination={{ position: ['bottomCenter'] }}

@@ -1,7 +1,6 @@
 // See the Electron documentation for details on how to use preload scripts:
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 import { ipcRenderer, contextBridge } from 'electron';
-import { Metric, DetectionStrategy, BadSmell } from './logic/types';
 
 // Expose protected methods off of window (ie.
 // window.api.sendToA) in order to use ipcRenderer
@@ -10,13 +9,16 @@ import { Metric, DetectionStrategy, BadSmell } from './logic/types';
 contextBridge.exposeInMainWorld('api', {
   database: {
     metric: {
-      new: (metric: Metric) => {
-        // Async message sender
-        return ipcRenderer.invoke('new-metric', metric);
+      fetchAll: () => {
+        return ipcRenderer.invoke('fetch-all-metric');
       },
-      edit: (metricId: number, metric: Metric) => {
+      new: (name: string, type: string, min?: number, max?: number, description?: string) => {
         // Async message sender
-        return ipcRenderer.invoke('edit-metric', metricId, metric);
+        return ipcRenderer.invoke('new-metric', name, type, min, max, description);
+      },
+      edit: (metricId: number, name: string, type: string, min?: number, max?: number, description?: string) => {
+        // Async message sender
+        return ipcRenderer.invoke('edit-metric', metricId, name, type, min, max, description);
       },
       delete: (metricId: number) => {
         // Async message sender
@@ -27,13 +29,13 @@ contextBridge.exposeInMainWorld('api', {
       fetchAll: () => {
         return ipcRenderer.invoke('fetch-all-detection-strategy');
       },
-      new: (detectionStrategy: DetectionStrategy) => {
+      new: (name: string, formula: string, description?: string) => {
         // Async message sender
-        return ipcRenderer.invoke('new-detection-strategy', detectionStrategy);
+        return ipcRenderer.invoke('new-detection-strategy', name, formula, description);
       },
-      edit: (detectionStrategyId: number, detectionStrategy: DetectionStrategy) => {
+      edit: (detectionStrategyId: number, name: string, formula: string, description?: string) => {
         // Async message sender
-        return ipcRenderer.invoke('edit-detection-strategy', detectionStrategyId, detectionStrategy);
+        return ipcRenderer.invoke('edit-detection-strategy', detectionStrategyId, name, formula, description);
       },
       delete: (detectionStrategyId: number) => {
         // Async message sender
@@ -41,17 +43,20 @@ contextBridge.exposeInMainWorld('api', {
       },
     },
     badSmell: {
-      new: (badSmell: BadSmell) => {
-        // Async message sender
-        return ipcRenderer.invoke('new-bad-smell', badSmell);
+      fetchAll: () => {
+        return ipcRenderer.invoke('fetch-all-bad-smell');
       },
-      edit: (badSmell: BadSmell) => {
+      new: (name: string, scope: string, detectionStrategyId?: number, description?: string) => {
         // Async message sender
-        return ipcRenderer.invoke('edit-bad-smell', badSmell);
+        return ipcRenderer.invoke('new-bad-smell', name, scope, detectionStrategyId, description);
       },
-      delete: (badSmell: BadSmell) => {
+      edit: (badSmellId: number, name: string, scope: string, detectionStrategyId?: number, description?: string) => {
         // Async message sender
-        return ipcRenderer.invoke('delete-bad-smell', badSmell);
+        return ipcRenderer.invoke('edit-bad-smell', badSmellId, name, scope, detectionStrategyId, description);
+      },
+      delete: (badSmellId: number) => {
+        // Async message sender
+        return ipcRenderer.invoke('delete-bad-smell', badSmellId);
       },
     },
   },

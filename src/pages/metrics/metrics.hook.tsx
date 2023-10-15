@@ -1,13 +1,34 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Space } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { Metric } from '../../logic/types';
 
 import { MetricsProps } from './metrics';
+import { Link } from 'react-router-dom';
 
 function useMetricsHook(props: MetricsProps) {
   const [editModalOpen, setEditModalOpen] = React.useState(false);
+  const [metricToDeleteId, setMetricToDeleteId] = React.useState<number | undefined>(undefined);
+  const [metrics, setMetrics] = React.useState<Metric[]>(undefined);
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    window.api.database.metric.fetchAll().then(
+      (data) => {
+        setMetrics(data);
+      },
+      (error) => {
+        console.error(error);
+      },
+    );
+  }, []);
+
+  const deleteMetric = useCallback(() => {
+    window.api.database.detectionStrategy.delete(metricToDeleteId);
+    setMetrics(metrics.filter((metric) => metric.metric_id !== metricToDeleteId));
+    setMetricToDeleteId(undefined);
+    setDeleteModalOpen(false);
+  }, [metricToDeleteId]);
 
   const columns: ColumnsType<Metric> = [
     {
@@ -50,53 +71,32 @@ function useMetricsHook(props: MetricsProps) {
     {
       title: 'Action',
       key: 'action',
-      render: () => (
+      render: (_, record) => (
         <Space size="middle">
-          <a onClick={() => setEditModalOpen(!editModalOpen)}>Edit</a>
-          <a onClick={() => setDeleteModalOpen(!deleteModalOpen)}>Delete</a>
+          <Link to="/metrics/edit" state={{ editTarget: record }}>
+            Edit
+          </Link>
+          <a
+            onClick={() => {
+              setMetricToDeleteId(record.metric_id);
+              setDeleteModalOpen(true);
+            }}
+          >
+            Delete
+          </a>
         </Space>
       ),
     },
   ];
 
-  const data: Metric[] = [
-    {
-      metric_id: 1,
-      name: 'LOC (Lines of code)',
-      type: 'Number',
-      min: 0,
-      description:
-        "It counts the lines of count, ignoring empty lines and comments (i.e., it's Source Lines of Code, or SLOC). The number of lines here might be a bit different from the original file, as we use JDT's internal representation of the source code to calculate it.",
-    },
-    {
-      metric_id: 2,
-      name: 'NOC (Number of Children)',
-      type: 'Number',
-      min: 0,
-      description: 'It counts the number of immediate subclasses that a particular class has.',
-    },
-    {
-      metric_id: 3,
-      name: 'Has Javadoc',
-      type: 'Boolean',
-      description: 'Boolean indicating whether a method has javadoc. (Only at method-level for now)',
-    },
-    {
-      metric_id: 4,
-      name: 'Test Metric',
-      min: 0,
-      max: 1,
-      type: 'Number',
-    },
-  ];
-
   return {
     columns,
-    data,
+    metrics,
     editModalOpen,
-    setEditModalOpen,
     deleteModalOpen,
+    setEditModalOpen,
     setDeleteModalOpen,
+    deleteMetric,
   };
 }
 
