@@ -21,3 +21,7 @@ export interface BadSmell {
   scope: string;
   description?: string;
 }
+
+export interface BadSmellDB extends Omit<BadSmell, 'detectionStrategy'> {
+  detectionStrategy_id: number;
+}

@@ -25,7 +25,7 @@ function BadSmells(props: BadSmellsProps) {
 
   const { Title, Text } = Typography;
 
-  const { columns, deleteModalOpen, setDeleteModalOpen } = useBadSmellsHook(props);
+  const { columns, badSmells, deleteModalOpen, setDeleteModalOpen, deleteBadSmell } = useBadSmellsHook(props);
 
   return (
     <styled.BadSmells className={`${className ?? ''}`.trim()} style={style}>
@@ -36,7 +36,7 @@ function BadSmells(props: BadSmellsProps) {
         </Link>
       </div>
       <Table
-        dataSource={[]}
+        dataSource={badSmells}
         columns={columns}
         bordered
         expandable={{
@@ -50,7 +50,12 @@ function BadSmells(props: BadSmellsProps) {
         }}
         pagination={{ position: ['bottomCenter'] }}
       />
-      <Modal title="Are you sure?" open={deleteModalOpen} onCancel={() => setDeleteModalOpen(false)}>
+      <Modal
+        title="Are you sure?"
+        open={deleteModalOpen}
+        onCancel={() => setDeleteModalOpen(false)}
+        onOk={() => deleteBadSmell()}
+      >
         <p>This action is irreversible.</p>
       </Modal>
     </styled.BadSmells>

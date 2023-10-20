@@ -25,7 +25,7 @@ function Metrics(props: MetricsProps) {
 
   const { Title, Text } = Typography;
 
-  const { columns, metrics, deleteModalOpen, setDeleteModalOpen } = useMetricsHook(props);
+  const { columns, metrics, deleteModalOpen, setDeleteModalOpen, deleteMetric } = useMetricsHook(props);
   return (
     <styled.Metrics className={`${className ?? ''}`.trim()} style={style}>
       <div className="header">
@@ -50,7 +50,12 @@ function Metrics(props: MetricsProps) {
         }}
         pagination={{ position: ['bottomCenter'] }}
       />
-      <Modal title="Are you sure?" open={deleteModalOpen} onCancel={() => setDeleteModalOpen(false)}>
+      <Modal
+        title="Are you sure?"
+        open={deleteModalOpen}
+        onCancel={() => setDeleteModalOpen(false)}
+        onOk={() => deleteMetric()}
+      >
         <p>This action is irreversible.</p>
       </Modal>
     </styled.Metrics>

@@ -9,7 +9,7 @@ import {
 } from './initializationQueries';
 import { app } from 'electron';
 
-import { Metric, DetectionStrategy, BadSmell } from '../types/index';
+import { Metric, DetectionStrategy, BadSmell, BadSmellDB } from '../types/index';
 
 const databasePath = app.getPath('userData').concat('/data.db');
 
@@ -69,7 +69,7 @@ export const insertMetric = (
   try {
     const result = db
       .prepare('INSERT INTO metrics (name, type, min, max, description) VALUES (?, ?, ?, ?, ?)')
-      .run([name, type, min ?? '', max ?? '', description ?? '']);
+      .run([name, type, min, max, description ?? '']);
 
     createdMetric = db.prepare('SELECT * from metrics where metric_id=?').get(result.lastInsertRowid) as Metric;
   } catch (error) {
@@ -211,7 +211,20 @@ export const fetchAllBadSmells = (): BadSmell[] => {
 
   let badSmells: Array<BadSmell> = [];
   try {
-    badSmells = db.prepare('SELECT * FROM badSmells').all() as Array<BadSmell>;
+    const detectionStrategies = fetchAllDetectionStrategies();
+
+    const result = db.prepare('SELECT * FROM badSmells').all() as Array<BadSmellDB>;
+    badSmells = result.map((badSmell) => {
+      return {
+        badSmell_id: badSmell.badSmell_id,
+        name: badSmell.name,
+        scope: badSmell.scope,
+        description: badSmell.description,
+        detectionStrategy: detectionStrategies.find(
+          (detectionStrategy) => detectionStrategy.detectionStrategy_id === badSmell.detectionStrategy_id,
+        ),
+      };
+    });
   } catch (error) {
     console.error('Code: ', error.code);
     console.error('Message: ', error.message);
@@ -222,22 +235,30 @@ export const fetchAllBadSmells = (): BadSmell[] => {
   return badSmells;
 };
 
-export const insertBadSmell = (name: string, scope: string, detectionStrategyId?: number, description?: string) => {
+export const insertBadSmell = (
+  name: string,
+  scope: string,
+  detectionStrategyId?: number,
+  description?: string,
+): BadSmell | undefined => {
   const db = new sqlite3(databasePath);
 
+  let createdBadSmell: BadSmell | undefined = undefined;
   try {
-    db.prepare('INSERT INTO metrics (name, scope, detectionStrategy, description) VALUES (?, ?, ?, ?)').run([
-      name,
-      scope,
-      detectionStrategyId ?? '',
-      description ?? '',
-    ]);
+    const result = db
+      .prepare('INSERT INTO badSmells (name, scope, detectionStrategy_id, description) VALUES (?, ?, ?, ?)')
+      .run([name, scope, detectionStrategyId ?? '', description ?? '']);
+
+    createdBadSmell = db
+      .prepare('SELECT * from BadSmells where detectionStrategy_id=?')
+      .get(result.lastInsertRowid) as BadSmell;
   } catch (error) {
     console.error('Code: ', error.code);
     console.error('Message: ', error.message);
   }
 
   db.close();
+  return createdBadSmell;
 };
 
 export const editBadSmell = (

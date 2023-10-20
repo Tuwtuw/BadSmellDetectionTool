@@ -26,14 +26,14 @@ function App(props: AppProps) {
 
   return (
     <styled.App className={`${className ?? ''}`.trim()} style={style}>
-      <Header>
+      <Header className="main-header">
         <Title level={2}>Bad Smell Detection Tool</Title>
       </Header>
       <Layout hasSider>
-        <Sider collapsible>
+        <Sider className="sider" collapsible>
           <Menu items={items} />
         </Sider>
-        <Content className={`content`}>
+        <Content className="content">
           <Outlet />
         </Content>
       </Layout>

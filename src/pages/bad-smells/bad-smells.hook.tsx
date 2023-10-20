@@ -73,6 +73,7 @@ function useBadSmellsHook(props: BadSmellsProps) {
     columns,
     editModalOpen,
     deleteModalOpen,
+    badSmells,
     setEditModalOpen,
     setDeleteModalOpen,
     deleteBadSmell,
