@@ -1,13 +1,20 @@
+import { expression, operator } from '../../components/formula-builder';
+
 export interface Metric {
   metric_id: number;
   name: string;
   type: string;
+  metric_input_id: string;
   description?: string;
-  min?: number;
-  max?: number;
 }
 
 export interface DetectionStrategy {
+  detectionStrategy_id: number;
+  name: string;
+  formula: (expression | operator)[];
+  description?: string;
+}
+export interface DetectionStrategyDB {
   detectionStrategy_id: number;
   name: string;
   formula: string;
@@ -24,4 +31,19 @@ export interface BadSmell {
 
 export interface BadSmellDB extends Omit<BadSmell, 'detectionStrategy'> {
   detectionStrategy_id: number;
+}
+
+export interface MetricsFile {
+  classes: Map<string, FileClass>;
+}
+
+export interface FileClass {
+  methods: Map<string, ClassMethod>;
+  metrics: Map<string, number | boolean>;
+  badSmellsAnalysed?: Map<number, boolean>;
+}
+
+export interface ClassMethod {
+  metrics: Map<string, number | boolean>;
+  badSmellsAnalysed?: Map<number, boolean>;
 }

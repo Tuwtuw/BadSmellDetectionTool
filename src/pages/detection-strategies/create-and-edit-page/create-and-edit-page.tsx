@@ -3,9 +3,9 @@ import { Link, useLocation } from 'react-router-dom';
 
 import useCreateAndEditPageHook from './create-and-edit-page.hook';
 import * as styled from './create-and-edit-page.styles';
-import { Form, Input, Space, Button, Cascader, FormInstance, Select, InputNumber } from 'antd';
+import { Form, Input, Space, Button, FormInstance } from 'antd';
 import { DetectionStrategy } from '../../../logic/types';
-import FormulaBuilder from '../../../components/formula-builder';
+import FormulaBuilder, { operator, expression } from '../../../components/formula-builder';
 
 const { TextArea } = Input;
 
@@ -30,7 +30,7 @@ export interface CreateAndEditPageProps {
 
 export interface FormTypes {
   name: string;
-  formula: string;
+  formula: (expression | operator)[];
   description?: string;
 }
 
@@ -89,17 +89,15 @@ function CreateAndEditPage(props: CreateAndEditPageProps) {
         layout="horizontal"
         style={{ maxWidth: 900 }}
         onFinish={(data) => {
-          // mode === 'create'
-          //   ? createDetectionStrategy(data)
-          //   : editDetectionStrategy(editTarget.detectionStrategy_id, data);
-          console.log(data);
+          mode === 'create'
+            ? createDetectionStrategy(data)
+            : editDetectionStrategy(editTarget.detectionStrategy_id, data);
         }}
       >
         <Form.Item name="name" label="Name" rules={[{ required: true }]}>
           <Input />
         </Form.Item>
         <Form.Item name="formula" label="Formula" rules={[{ required: true }]}>
-          {/* <Input /> */}
           <FormulaBuilder metricsList={metricsList} />
         </Form.Item>
         <Form.Item name="description" label="Description">

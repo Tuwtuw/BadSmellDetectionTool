@@ -37,7 +37,7 @@ function MainMenu(props: MainMenuProps) {
       <div className="content-centered">
         <Link to="/detect">
           <Button icon={<CodeOutlined />} className={'button'}>
-            Run Issue Detection
+            To Issue Detection
           </Button>
         </Link>
       </div>

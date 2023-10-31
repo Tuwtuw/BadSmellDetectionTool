@@ -38,6 +38,7 @@ function BadSmells(props: BadSmellsProps) {
       <Table
         dataSource={badSmells}
         columns={columns}
+        rowKey={(record) => String(record.badSmell_id)}
         bordered
         expandable={{
           expandedRowRender: (record) => (

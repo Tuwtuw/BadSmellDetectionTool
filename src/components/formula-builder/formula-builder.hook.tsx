@@ -1,10 +1,11 @@
 import React from 'react';
 
 import { FormulaBuilderProps } from './formula-builder';
+import { getVisualRepresentationFromFormula } from '../utils/formula-builder-utils';
 import { Metric } from '../../logic/types';
 
 export interface expression {
-  metric: Metric;
+  metric: Omit<Metric, 'description'>;
   comparison: string;
   comparisonValue: number;
 }
@@ -30,7 +31,12 @@ function useFormulaBuilderHook(props: FormulaBuilderProps) {
 
     if (finalFormula.length === 0 || (!isExpression(lastFormulaElement) && lastFormulaElement.value !== ')')) {
       const newComparison: expression = {
-        metric: selectedMetric,
+        metric: {
+          metric_id: selectedMetric.metric_id,
+          name: selectedMetric.name,
+          type: selectedMetric.type,
+          metric_input_id: selectedMetric.metric_input_id,
+        },
         comparison: comparison,
         comparisonValue: comparisonValue,
       };
@@ -91,25 +97,7 @@ function useFormulaBuilderHook(props: FormulaBuilderProps) {
   };
 
   const visualRepresentation = React.useMemo<string>(() => {
-    if (!finalFormula) return '';
-    let visualRepresentation = '';
-    finalFormula.forEach((formulaElement) => {
-      if (isExpression(formulaElement)) {
-        visualRepresentation +=
-          '{' +
-          formulaElement.metric.name +
-          '}' +
-          ' ' +
-          formulaElement.comparison +
-          ' ' +
-          formulaElement.comparisonValue;
-      } else {
-        formulaElement.value === '!'
-          ? (visualRepresentation += ' ' + formulaElement.value)
-          : (visualRepresentation += ' ' + formulaElement.value + ' ');
-      }
-    });
-    return visualRepresentation;
+    return getVisualRepresentationFromFormula(finalFormula);
   }, [finalFormula]);
 
   const isFormulaValid = React.useMemo<boolean>(() => {
@@ -134,7 +122,7 @@ function useFormulaBuilderHook(props: FormulaBuilderProps) {
   };
 }
 
-function isExpression(value: expression | operator): value is expression {
+export function isExpression(value: expression | operator): value is expression {
   return (value as expression).comparison !== undefined;
 }
 

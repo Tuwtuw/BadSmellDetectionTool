@@ -7,7 +7,7 @@ function useCreateAndEditPageHook() {
   const navigate = useNavigate();
 
   const createMetric = React.useCallback((formData: FormTypes) => {
-    window.api.database.metric.new(formData.name, formData.type, formData.min, formData.max, formData.description);
+    window.api.database.metric.new(formData.name, formData.type, formData.metric_input_id, formData.description);
     navigate('/metrics');
   }, []);
 
@@ -16,8 +16,7 @@ function useCreateAndEditPageHook() {
       targetId,
       formData.name,
       formData.type,
-      formData.min,
-      formData.max,
+      formData.metric_input_id,
       formData.description,
     );
     navigate('/metrics');

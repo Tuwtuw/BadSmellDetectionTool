@@ -68,7 +68,6 @@ function FormulaBuilder(props: FormulaBuilderProps) {
           optionFilterProp="label"
           onChange={(value, option) => {
             setSelectedMetric(Array.isArray(option) ? option[0].metric : option.metric);
-            console.log(option);
           }}
         />
         <Select

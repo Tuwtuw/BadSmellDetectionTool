@@ -1,5 +1,5 @@
 {
-  "name": "badSmellDetectionTool",
+  "name": "bad-smell-detection-tool",
   "productName": "badSmellDetectionTool",
   "version": "1.0.0",
   "description": "My Electron application description",
@@ -47,8 +47,10 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
+    "@types/papaparse": "^5.3.10",
     "antd": "^5.8.5",
     "better-sqlite3": "^8.6.0",
+    "csv-parse": "^5.5.2",
     "dotenv": "^16.3.1",
     "electron-squirrel-startup": "^1.0.0",
     "react": "^18.2.0",

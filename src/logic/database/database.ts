@@ -9,7 +9,8 @@ import {
 } from './initializationQueries';
 import { app } from 'electron';
 
-import { Metric, DetectionStrategy, BadSmell, BadSmellDB } from '../types/index';
+import { Metric, DetectionStrategy, BadSmell, BadSmellDB, DetectionStrategyDB } from '../types/index';
+import { expression, operator } from '../../components/formula-builder';
 
 const databasePath = app.getPath('userData').concat('/data.db');
 
@@ -57,8 +58,7 @@ export const fetchAllMetrics = (): Metric[] => {
 export const insertMetric = (
   name: string,
   type: string,
-  min?: number,
-  max?: number,
+  metric_input_id: string,
   description?: string,
 ): Metric | undefined => {
   console.log(databasePath);
@@ -68,8 +68,8 @@ export const insertMetric = (
   let createdMetric: Metric | undefined = undefined;
   try {
     const result = db
-      .prepare('INSERT INTO metrics (name, type, min, max, description) VALUES (?, ?, ?, ?, ?)')
-      .run([name, type, min, max, description ?? '']);
+      .prepare('INSERT INTO metrics (name, type, metric_input_id, description) VALUES (?, ?, ?, ?)')
+      .run([name, type, metric_input_id, description]);
 
     createdMetric = db.prepare('SELECT * from metrics where metric_id=?').get(result.lastInsertRowid) as Metric;
   } catch (error) {
@@ -86,19 +86,17 @@ export const editMetric = (
   metricId: number,
   name: string,
   type: string,
-  min?: number,
-  max?: number,
+  metric_input_id: string,
   description?: string,
 ) => {
   const db = new sqlite3(databasePath);
 
   try {
-    db.prepare('UPDATE metrics SET name=?, type=?, min=?, max=?, description=? WHERE metric_id=?').run([
+    db.prepare('UPDATE metrics SET name=?, type=?, metric_input_id=?, description=? WHERE metric_id=?').run([
       name,
       type,
-      min ?? '',
-      max ?? '',
-      description ?? '',
+      metric_input_id,
+      description,
       metricId,
     ]);
   } catch (error) {
@@ -129,7 +127,15 @@ export const fetchAllDetectionStrategies = (): DetectionStrategy[] => {
 
   let detectionStrategies: Array<DetectionStrategy> = [];
   try {
-    detectionStrategies = db.prepare('SELECT * FROM detectionStrategies').all() as Array<DetectionStrategy>;
+    const result = db.prepare('SELECT * FROM detectionStrategies').all() as Array<DetectionStrategyDB>;
+    detectionStrategies = result.map((detectStrat) => {
+      return {
+        detectionStrategy_id: detectStrat.detectionStrategy_id,
+        name: detectStrat.name,
+        formula: JSON.parse(detectStrat.formula) as (expression | operator)[],
+        description: detectStrat.description,
+      };
+    });
   } catch (error) {
     console.error('Code: ', error.code);
     console.error('Message: ', error.message);
@@ -142,7 +148,7 @@ export const fetchAllDetectionStrategies = (): DetectionStrategy[] => {
 
 export const insertDetectionStrategy = (
   name: string,
-  formula: string,
+  formula: (expression | operator)[],
   description?: string,
 ): DetectionStrategy | undefined => {
   const db = new sqlite3(databasePath);
@@ -151,7 +157,7 @@ export const insertDetectionStrategy = (
   try {
     const result = db
       .prepare('INSERT INTO detectionStrategies (name, formula, description) VALUES (?, ?, ?)')
-      .run([name, formula, description ?? '']);
+      .run([name, JSON.stringify(formula), description ?? '']);
 
     createdDetectionStrategy = db
       .prepare('SELECT * from detectionStrategies where detectionStrategy_id=?')
@@ -169,7 +175,7 @@ export const insertDetectionStrategy = (
 export const editDetectionStrategy = (
   detectionStrategyId: number,
   name: string,
-  formula: string,
+  formula: (expression | operator)[],
   description?: string,
 ) => {
   const db = new sqlite3(databasePath);
@@ -177,7 +183,7 @@ export const editDetectionStrategy = (
   try {
     db.prepare('UPDATE detectionStrategies SET name=?, formula=?, description=? WHERE detectionStrategy_id=?').run([
       name,
-      formula,
+      JSON.stringify(formula),
       description ?? '',
       detectionStrategyId,
     ]);
@@ -214,6 +220,39 @@ export const fetchAllBadSmells = (): BadSmell[] => {
     const detectionStrategies = fetchAllDetectionStrategies();
 
     const result = db.prepare('SELECT * FROM badSmells').all() as Array<BadSmellDB>;
+    badSmells = result.map((badSmell) => {
+      return {
+        badSmell_id: badSmell.badSmell_id,
+        name: badSmell.name,
+        scope: badSmell.scope,
+        description: badSmell.description,
+        detectionStrategy: detectionStrategies.find(
+          (detectionStrategy) => detectionStrategy.detectionStrategy_id === badSmell.detectionStrategy_id,
+        ),
+      };
+    });
+  } catch (error) {
+    console.error('Code: ', error.code);
+    console.error('Message: ', error.message);
+  }
+
+  db.close();
+
+  return badSmells;
+};
+
+export const fetchBadSmellFromID = (badSmellIds: number[]): BadSmell[] => {
+  const db = new sqlite3(databasePath);
+
+  let badSmells: Array<BadSmell> = [];
+
+  try {
+    const detectionStrategies = fetchAllDetectionStrategies();
+
+    const result = db
+      .prepare('SELECT * FROM badSmells WHERE badSmell_id IN (?)'.replace('?', badSmellIds.join()))
+      .all() as Array<BadSmellDB>;
+
     badSmells = result.map((badSmell) => {
       return {
         badSmell_id: badSmell.badSmell_id,

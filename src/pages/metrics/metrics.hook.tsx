@@ -45,28 +45,9 @@ function useMetricsHook(props: MetricsProps) {
       sorter: (a, b) => a.type.localeCompare(b.type),
     },
     {
-      title: 'Restrictions',
-      key: 'restrictions',
-      render: (_, record) => (
-        <>
-          {record.min != null || record.max != null
-            ? `${record.min != null ? `${record.min} < ` : ''} ${record.name} ${
-                record.max != null ? ` < ${record.max}` : ''
-              }`
-            : undefined}
-        </>
-      ),
-      filters: [
-        {
-          text: 'Has Restrictions',
-          value: true,
-        },
-        {
-          text: 'No Restrictions',
-          value: false,
-        },
-      ],
-      onFilter: (value: boolean, record) => (record.min != null || record.max != null) === value,
+      title: 'Metric ID',
+      dataIndex: 'metric_input_id',
+      key: 'metric_input_id',
     },
     {
       title: 'Action',

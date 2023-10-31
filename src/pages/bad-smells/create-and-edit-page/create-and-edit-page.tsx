@@ -112,7 +112,6 @@ function CreateAndEditPage(props: CreateAndEditPageProps) {
           <Select>
             <Select.Option value="method">Method</Select.Option>
             <Select.Option value="class">Class</Select.Option>
-            <Select.Option value="program">Program</Select.Option>
           </Select>
         </Form.Item>
         <Form.Item name="detectionStrategy" label="Detection Strategy" rules={[{ required: true }]}>

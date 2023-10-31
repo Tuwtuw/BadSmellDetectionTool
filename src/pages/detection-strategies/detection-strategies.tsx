@@ -3,6 +3,7 @@ import { Table, Modal, Typography, Button, Divider } from 'antd';
 
 import useDetectionStrategiesHook from './detection-strategies.hook';
 import * as styled from './detection-strategies.styles';
+import { getVisualRepresentationFromFormula } from '../../components/utils/formula-builder-utils';
 import { Link } from 'react-router-dom';
 
 export interface DetectionStrategiesProps {
@@ -49,7 +50,7 @@ function DetectionStrategies(props: DetectionStrategiesProps) {
                 <p style={{ margin: 0 }}>{record.description}</p>
                 <Divider />
                 <Text strong>Formula</Text>
-                <p style={{ margin: 0 }}>{record.formula}</p>
+                <p style={{ margin: 0 }}>{getVisualRepresentationFromFormula(record.formula)}</p>
               </div>
             );
           },

@@ -3,8 +3,9 @@ import { Link, useLocation } from 'react-router-dom';
 
 import useCreateAndEditPageHook from './create-and-edit-page.hook';
 import * as styled from './create-and-edit-page.styles';
-import { Form, Input, Space, Button, FormInstance, InputNumber, Select } from 'antd';
+import { Form, Input, Space, Button, FormInstance, Select, Tooltip } from 'antd';
 import { Metric } from '../../../logic/types';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
 
@@ -30,8 +31,7 @@ export interface CreateAndEditPageProps {
 export interface FormTypes {
   name: string;
   type: string;
-  min?: number;
-  max?: number;
+  metric_input_id: string;
   description?: string;
 }
 
@@ -82,8 +82,7 @@ function CreateAndEditPage(props: CreateAndEditPageProps) {
             : {
                 name: editTarget.name,
                 type: editTarget.type,
-                min: editTarget.min,
-                max: editTarget.max,
+                metric_input_id: editTarget.metric_input_id,
                 description: editTarget.description ?? '',
               }
         }
@@ -105,11 +104,22 @@ function CreateAndEditPage(props: CreateAndEditPageProps) {
             <Select.Option value="boolean">Boolean</Select.Option>
           </Select>
         </Form.Item>
-        <Form.Item name="min" label="Min">
-          <InputNumber />
-        </Form.Item>
-        <Form.Item name="max" label="Max">
-          <InputNumber />
+        <Form.Item
+          name="metric_input_id"
+          label={
+            <span>
+              Metric ID{' '}
+              <Tooltip
+                title='ID which will be used to match the input file columns to the respective metrics. 
+              *UNIQUE* Eg: the column "loc" on the input file will be associated to the metric with metric ID "loc".'
+              >
+                <QuestionCircleOutlined />
+              </Tooltip>
+            </span>
+          }
+          rules={[{ required: true }]}
+        >
+          <Input />
         </Form.Item>
         <Form.Item name="description" label="Description">
           <TextArea rows={4} />
