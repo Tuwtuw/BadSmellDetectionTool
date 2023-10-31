@@ -1,14 +1,25 @@
 import React from 'react';
 
+import { Space } from 'antd';
 import { IssueDetectionProps } from './issue-detection';
-import { BadSmell } from '../../logic/types';
+import { BadSmell, MetricsFile } from '../../logic/types';
+import { ColumnsType } from 'antd/es/table';
+import { CheckOutlined } from '@ant-design/icons';
+
+export interface MetricsFileWithName extends MetricsFile {
+  fileName: string;
+}
 
 function useIssueDetectionHook(props: IssueDetectionProps) {
   const [methodMetricsFile, setMethodsMetricsFile] = React.useState('');
   const [classMetricsFile, setClassMetricsFile] = React.useState('');
   const [issuesToAnalyseId, setIssuesToAnalyseId] = React.useState<number[]>(undefined);
   const [currentStep, setCurrentStep] = React.useState<number>(0);
+  const [analysisResult, setAnalysisResult] = React.useState<Map<string, MetricsFile>>();
   const [issues, setIssues] = React.useState<BadSmell[]>(undefined);
+
+  const [fileInAnalysis, setFileInAnalysis] = React.useState<MetricsFileWithName>();
+  const [detailsOpen, setDetailsOpen] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     window.api.database.badSmell.fetchAll().then(
@@ -21,6 +32,51 @@ function useIssueDetectionHook(props: IssueDetectionProps) {
     );
   }, []);
 
+  const tableData = React.useMemo<MetricsFileWithName[]>(() => {
+    if (!analysisResult) return [];
+    const data = [];
+    for (const [fileName, fileObject] of analysisResult) {
+      data.push({ fileName, ...fileObject });
+      if (fileObject.fileHasIssues) console.log(fileName);
+    }
+
+    console.log(data[0]);
+    return data;
+  }, [analysisResult]);
+
+  const columns: ColumnsType<MetricsFileWithName> = [
+    {
+      title: 'File',
+      key: 'filename',
+      render: (_, record) => <span>{record.fileName}</span>,
+      sorter: (a, b) => a.fileName.localeCompare(b.fileName),
+    },
+    {
+      title: 'Has Issues',
+      key: 'issues',
+      render: (_, record) => <span>{record.fileHasIssues && <CheckOutlined />}</span>,
+      align: 'center',
+      sorter: (a, b) => Number(a.fileHasIssues) - Number(b.fileHasIssues),
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_, record) => (
+        <Space size="middle">
+          <a
+            onClick={() => {
+              setFileInAnalysis(record);
+              setDetailsOpen(true);
+              // window.open
+            }}
+          >
+            Details
+          </a>
+        </Space>
+      ),
+    },
+  ];
+
   const issuesList = React.useMemo(() => {
     return issues?.map((issue) => {
       return {
@@ -32,7 +88,6 @@ function useIssueDetectionHook(props: IssueDetectionProps) {
   }, [issues]);
 
   const runIssueAnalysis = React.useCallback(() => {
-    console.log(classMetricsFile, methodMetricsFile, issuesToAnalyseId);
     return window.api.analyser.runAnalysis(classMetricsFile, methodMetricsFile, issuesToAnalyseId);
   }, [classMetricsFile, methodMetricsFile, issuesToAnalyseId]);
 
@@ -58,6 +113,8 @@ function useIssueDetectionHook(props: IssueDetectionProps) {
   );
 
   return {
+    columns,
+    tableData,
     issuesList,
     currentStep,
     setCurrentStep,
@@ -67,6 +124,10 @@ function useIssueDetectionHook(props: IssueDetectionProps) {
     newMethodsFile,
     onSelectChange,
     runIssueAnalysis,
+    setAnalysisResult,
+    detailsOpen,
+    setDetailsOpen,
+    fileInAnalysis,
   };
 }
 

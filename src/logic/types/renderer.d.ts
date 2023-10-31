@@ -1,5 +1,5 @@
 import { expression, operator } from '../../components/formula-builder';
-import { BadSmell, DetectionStrategy, Metric } from '.';
+import { BadSmell, DetectionStrategy, Metric, MetricsFile } from '.';
 
 export interface IAPI {
   database: {
@@ -44,7 +44,7 @@ export interface IAPI {
       classMetricsFilePath: string,
       methodMetricsFilePath: string,
       issuesToAnalyseIds: number[],
-    ) => Promise<Map<string, File>>;
+    ) => Promise<Map<string, MetricsFile>>;
   };
 }
 

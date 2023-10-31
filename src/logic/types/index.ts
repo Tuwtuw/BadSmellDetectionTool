@@ -35,15 +35,19 @@ export interface BadSmellDB extends Omit<BadSmell, 'detectionStrategy'> {
 
 export interface MetricsFile {
   classes: Map<string, FileClass>;
+  fileHasIssues?: boolean;
 }
 
 export interface FileClass {
   methods: Map<string, ClassMethod>;
   metrics: Map<string, number | boolean>;
-  badSmellsAnalysed?: Map<number, boolean>;
+  issuesAnalysed?: Map<number, boolean>;
+  classHasIssues?: boolean;
+  classItselfHasIssues?: boolean;
 }
 
 export interface ClassMethod {
   metrics: Map<string, number | boolean>;
-  badSmellsAnalysed?: Map<number, boolean>;
+  issuesAnalysed?: Map<number, boolean>;
+  methodHasIssues?: boolean;
 }

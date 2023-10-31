@@ -31,21 +31,27 @@ export async function runAnalysis(
   const processedCSVMap = await parseCkMetricsFiles(classMetricsFilePath, methodMetricsFilePath);
 
   for (const [, fileObject] of processedCSVMap) {
+    let fileHasIssue = false;
     for (const [, classObject] of fileObject.classes) {
       // Calculate Class Level Bad Smells
       // This variable is accessed during evals
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const currentClassMetrics = Object.fromEntries(classObject.metrics);
       const classLevelAnalysisResult = new Map();
+      let classItselfHasIssue = false;
       classLevelIssues.forEach((classLevelIssue) => {
         const classLevelLogicExpression = buildLogicalExpressionToAnalyse(
           classLevelIssue.detectionStrategy.formula,
           'currentClassMetrics',
         );
-        classLevelAnalysisResult.set(classLevelIssue.badSmell_id, eval(classLevelLogicExpression));
+        const issueExpressionResult = eval(classLevelLogicExpression);
+        classItselfHasIssue = classItselfHasIssue || issueExpressionResult;
+        classLevelAnalysisResult.set(classLevelIssue.badSmell_id, issueExpressionResult);
       });
 
-      classObject.badSmellsAnalysed = classLevelAnalysisResult;
+      classObject.issuesAnalysed = classLevelAnalysisResult;
+      classObject.classItselfHasIssues = classItselfHasIssue;
+      let classHasIssue = classItselfHasIssue;
 
       for (const [, methodObject] of classObject.methods) {
         // Calculate Method Level Bad Smells
@@ -53,27 +59,27 @@ export async function runAnalysis(
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const currentMethodMetrics = Object.fromEntries(methodObject.metrics);
         const methodLevelAnalysisResult = new Map();
+        let methodHasIssue = false;
         methodLevelIssues.forEach((methodLevelIssue) => {
           const methodLevelLogicExpression = buildLogicalExpressionToAnalyse(
             methodLevelIssue.detectionStrategy.formula,
             'currentMethodMetrics',
           );
-          methodLevelAnalysisResult.set(methodLevelIssue.badSmell_id, eval(methodLevelLogicExpression));
+          const issueExpressionResult = eval(methodLevelLogicExpression);
+          methodHasIssue = methodHasIssue || issueExpressionResult;
+          methodLevelAnalysisResult.set(methodLevelIssue.badSmell_id, issueExpressionResult);
         });
 
-        methodObject.badSmellsAnalysed = methodLevelAnalysisResult;
+        methodObject.issuesAnalysed = methodLevelAnalysisResult;
+        methodObject.methodHasIssues = methodHasIssue;
+        classHasIssue = classHasIssue || methodHasIssue;
       }
+
+      classObject.classHasIssues = classHasIssue;
+      fileHasIssue = fileHasIssue || classHasIssue;
     }
-  }
 
-  const test = processedCSVMap
-    .get(
-      'C:\\Temp\\ProgramsToAnalyse\\dbeaver\\plugins\\org.jkiss.dbeaver.erd.ui\\src\\org\\jkiss\\dbeaver\\erd\\ui\\part\\EntityPart.java',
-    )
-    .classes.get('org.jkiss.dbeaver.erd.ui.part.EntityPart');
-
-  for (const [, testPrint] of test.methods) {
-    console.log(testPrint);
+    fileObject.fileHasIssues = fileHasIssue;
   }
 
   return processedCSVMap;

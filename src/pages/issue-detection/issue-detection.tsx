@@ -1,9 +1,10 @@
 import React, { memo, ReactNode } from 'react';
-import { Button, Form, FormInstance, Select, Spin, Steps } from 'antd';
+import { Button, Form, Select, Spin, Steps, Typography, Table } from 'antd';
 
 import useIssueDetectionHook from './issue-detection.hook';
 import * as styled from './issue-detection.styles';
 import { CodeOutlined, LoadingOutlined } from '@ant-design/icons';
+import FileAnalysisDetail from './file-analysis-detail';
 
 export interface IssueDetectionProps {
   /*
@@ -25,6 +26,8 @@ function IssueDetection(props: IssueDetectionProps) {
 
   const [form] = Form.useForm();
 
+  const { Title, Text } = Typography;
+
   const [submittable, setSubmittable] = React.useState(false);
 
   // Watch all values
@@ -41,10 +44,23 @@ function IssueDetection(props: IssueDetectionProps) {
     );
   }, [values]);
 
-  const { issuesList, currentStep, setCurrentStep, newClassFile, newMethodsFile, onSelectChange, runIssueAnalysis } =
-    useIssueDetectionHook(props);
+  const {
+    detailsOpen,
+    setDetailsOpen,
+    fileInAnalysis,
+    columns,
+    tableData,
+    issuesList,
+    currentStep,
+    setCurrentStep,
+    newClassFile,
+    newMethodsFile,
+    onSelectChange,
+    runIssueAnalysis,
+    setAnalysisResult,
+  } = useIssueDetectionHook(props);
 
-  return (
+  return !detailsOpen ? (
     <styled.IssueDetection className={`${className ?? ''}`.trim()} style={style}>
       <Steps
         current={currentStep}
@@ -97,6 +113,7 @@ function IssueDetection(props: IssueDetectionProps) {
               onClick={() => {
                 setCurrentStep(1);
                 runIssueAnalysis().then((processingResult) => {
+                  setAnalysisResult(processingResult);
                   setCurrentStep(2);
                 });
               }}
@@ -119,10 +136,30 @@ function IssueDetection(props: IssueDetectionProps) {
       )}
       {currentStep >= 2 && (
         <div>
-          <Select mode="multiple" options={issuesList} onChange={(value, option) => onSelectChange(value)} />
+          <div className="header">
+            <Title>Analysis Result</Title>
+          </div>
+          <Table
+            dataSource={tableData}
+            columns={columns}
+            rowKey={(record) => String(record.fileName)}
+            bordered
+            // expandable={{
+            //   expandedRowRender: (record) => (
+            //     <>
+            //       <Text strong>Description</Text>
+            //       <p style={{ margin: 0 }}>{record.description}</p>
+            //     </>
+            //   ),
+            //   rowExpandable: (record) => !!record.description,
+            // }}
+            pagination={{ position: ['bottomCenter'] }}
+          />
         </div>
       )}
     </styled.IssueDetection>
+  ) : (
+    <FileAnalysisDetail fileInAnalysis={fileInAnalysis} onReturnClick={() => setDetailsOpen(false)} />
   );
 }
 
