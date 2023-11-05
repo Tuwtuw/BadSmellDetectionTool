@@ -50,10 +50,13 @@ function FileAnalysisDetail(props: FileAnalysisDetailProps) {
           Return
         </Button>
         <div className="header">
-          <Title level={2}>{fileInAnalysis.fileName}</Title>
+          <Title level={4}>{fileInAnalysis.fileName}</Title>
         </div>
-        <div style={{ width: '100%' }}>
+        <div style={{ width: '100%', margin: '15px 0px 25px 0px' }}>
+          <span style={{ display: 'block' }}>Classes: </span>
           <Select
+            placeholder="Select class to view details"
+            style={{ width: '60%' }}
             options={classesList}
             onChange={(value, option) => {
               setSelectedClass(Array.isArray(option) ? option[0].class : option.class);

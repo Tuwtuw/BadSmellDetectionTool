@@ -3,8 +3,12 @@ import React from 'react';
 import { FileAnalysisDetailProps } from './file-analysis-detail';
 import { BadSmell, ClassMethod, FileClass, Metric } from '../../../logic/types';
 import Table, { ColumnsType } from 'antd/es/table';
-import { CheckOutlined } from '@ant-design/icons';
-import { Space, CollapseProps, Typography } from 'antd';
+import { CheckOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { Space, CollapseProps, Typography, Divider } from 'antd';
+import {
+  getVisualRepresentationFromFormula,
+  getVisualRepresentationWithTooltipValuesFromFormula,
+} from '../../../components/utils/formula-builder-utils';
 
 export interface ClassMethodWithName extends ClassMethod {
   methodName: string;
@@ -39,7 +43,14 @@ function useFileAnalysisDetailHook(props: FileAnalysisDetailProps) {
     if (!fileInAnalysis) return [];
     const classesInFile = [];
     for (const [className, classObject] of fileInAnalysis.classes) {
-      classesInFile.push({ label: className, value: className, class: classObject });
+      const label = classObject.classHasIssues ? (
+        <Typography.Text strong type="danger">
+          {className} <ExclamationCircleOutlined />
+        </Typography.Text>
+      ) : (
+        <span>{className}</span>
+      );
+      classesInFile.push({ label, value: className, class: classObject });
     }
     return classesInFile;
   }, [fileInAnalysis]);
@@ -60,12 +71,12 @@ function useFileAnalysisDetailHook(props: FileAnalysisDetailProps) {
     },
   ];
 
-  const issuesTableColumns: ColumnsType<{ issueName: string; issueResult: boolean }> = [
+  const issuesTableColumns: ColumnsType<{ issue: BadSmell; issueResult: boolean }> = [
     {
       title: 'Issue',
       key: 'issuename',
-      dataIndex: 'issueName',
-      // sorter: (a, b) => a.issueName.localeCompare(b.issueName),
+      render: (_, record) => record.issue.name,
+      sorter: (a, b) => a.issue.name.localeCompare(b.issue.name),
     },
     {
       title: 'Detected',
@@ -124,8 +135,10 @@ function useFileAnalysisDetailHook(props: FileAnalysisDetailProps) {
     if (!selectedClass || !selectedClass.issuesAnalysed) return [];
     const issuesList = [];
     for (const [issueId, issueResult] of selectedClass.issuesAnalysed) {
-      const issueName = issuesInAnalysis.find((element) => element.badSmell_id === issueId)?.name;
-      issuesList.push({ issueName, issueResult });
+      const issue = issuesInAnalysis.find((element) => element.badSmell_id === issueId);
+      if (issue) {
+        issuesList.push({ issue, issueResult });
+      }
     }
     return issuesList;
   }, [selectedClass]);
@@ -167,16 +180,24 @@ function useFileAnalysisDetailHook(props: FileAnalysisDetailProps) {
         <Table
           dataSource={classIssuesList}
           columns={issuesTableColumns}
-          rowKey={(record) => String(record.issueName)}
+          rowKey={(record) => String(record.issue.name)}
           bordered
           expandable={{
-            expandedRowRender: (record) => (
-              <>
-                <Typography.Text strong>Description</Typography.Text>
-                <p style={{ margin: 0 }}>{record.description}</p>
-              </>
-            ),
-            rowExpandable: (record) => !!record.description,
+            expandedRowRender: (record) => {
+              return (
+                <div>
+                  <Typography.Text strong>Formula</Typography.Text>
+                  <p style={{ margin: 0 }}>
+                    {getVisualRepresentationWithTooltipValuesFromFormula(
+                      record.issue.detectionStrategy.formula,
+                      selectedClass.metrics,
+                    )}
+                  </p>
+                  <Divider />
+                  <small>*Hover over metrics to see their values</small>
+                </div>
+              );
+            },
           }}
           pagination={{ position: ['bottomCenter'] }}
         />
