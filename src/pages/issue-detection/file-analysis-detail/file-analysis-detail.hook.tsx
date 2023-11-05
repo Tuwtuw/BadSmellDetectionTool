@@ -5,14 +5,13 @@ import { BadSmell, ClassMethod, FileClass, Metric } from '../../../logic/types';
 import Table, { ColumnsType } from 'antd/es/table';
 import { CheckOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { Space, CollapseProps, Typography, Divider } from 'antd';
-import {
-  getVisualRepresentationFromFormula,
-  getVisualRepresentationWithTooltipValuesFromFormula,
-} from '../../../components/utils/formula-builder-utils';
+import { getVisualRepresentationWithTooltipValuesFromFormula } from '../../../components/utils/formula-builder-utils';
+import MethodAnalysisDetails from './method-analysis-details';
 
 export interface ClassMethodWithName extends ClassMethod {
   methodName: string;
 }
+
 function useFileAnalysisDetailHook(props: FileAnalysisDetailProps) {
   const { fileInAnalysis, idOfIssuesInAnalysis } = props;
   const [selectedClass, setSelectedClass] = React.useState<FileClass>();
@@ -100,22 +99,6 @@ function useFileAnalysisDetailHook(props: FileAnalysisDetailProps) {
       render: (_, record) => <span>{record.methodHasIssues && <CheckOutlined />}</span>,
       align: 'center',
       sorter: (a, b) => Number(a.methodHasIssues) - Number(b.methodHasIssues),
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (_, record) => (
-        <Space size="middle">
-          <a
-            onClick={() => {
-              console.log('opening record details');
-              // window.open
-            }}
-          >
-            Details
-          </a>
-        </Space>
-      ),
     },
   ];
 
@@ -219,15 +202,11 @@ function useFileAnalysisDetailHook(props: FileAnalysisDetailProps) {
           columns={methodsTableColumns}
           rowKey={(record) => String(record.methodName)}
           bordered
-          // expandable={{
-          //   expandedRowRender: (record) => (
-          //     <>
-          //       <Text strong>Description</Text>
-          //       <p style={{ margin: 0 }}>{record.description}</p>
-          //     </>
-          //   ),
-          //   rowExpandable: (record) => !!record.description,
-          // }}
+          expandable={{
+            expandedRowRender: (record) => (
+              <MethodAnalysisDetails methodInAnalysis={record} issuesInAnalysis={issuesInAnalysis} metrics={metrics} />
+            ),
+          }}
           pagination={{ position: ['bottomCenter'] }}
         />
       ),
