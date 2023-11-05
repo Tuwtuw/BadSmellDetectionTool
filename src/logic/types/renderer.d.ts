@@ -28,6 +28,7 @@ export interface IAPI {
     };
     badSmell: {
       fetchAll: () => Promise<BadSmell[]>;
+      fetchFromId: (badSmellIds: number[]) => Promise<BadSmell[]>;
       new: (name: string, scope: string, detectionStrategyId: number, description?: string) => Promise<BadSmell>;
       edit: (
         badSmellId: number,

@@ -14,6 +14,7 @@ import {
   insertBadSmell,
   deleteBadSmell,
   editBadSmell,
+  fetchBadSmellFromID,
 } from './logic/database/database';
 
 import { runAnalysis } from './logic/analyser';
@@ -96,6 +97,10 @@ ipcMain.handle('delete-detection-strategy', (_, detectionStrategyId) => {
 
 ipcMain.handle('fetch-all-bad-smell', () => {
   return fetchAllBadSmells();
+});
+
+ipcMain.handle('fetch-bad-smell-from-id', (_, badSmellIds) => {
+  return fetchBadSmellFromID(badSmellIds);
 });
 
 ipcMain.handle('new-bad-smell', (_, name, scope, detectionStrategyId, description) => {

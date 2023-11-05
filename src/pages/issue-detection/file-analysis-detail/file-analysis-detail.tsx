@@ -2,7 +2,7 @@ import React, { memo, ReactNode } from 'react';
 
 import useFileAnalysisDetailHook from './file-analysis-detail.hook';
 import * as styled from './file-analysis-detail.styles';
-import { Button, Select, Table, Typography } from 'antd';
+import { Button, Select, Typography, Collapse } from 'antd';
 import { MetricsFileWithName } from '../issue-detection.hook';
 
 export interface FileAnalysisDetailProps {
@@ -23,6 +23,10 @@ export interface FileAnalysisDetailProps {
    */
   fileInAnalysis: MetricsFileWithName;
   /*
+   * Id of issues which are current in analysis
+   */
+  idOfIssuesInAnalysis: number[];
+  /*
    * Callback for when return button is clicked
    */
   onReturnClick?: () => void;
@@ -33,7 +37,7 @@ function FileAnalysisDetail(props: FileAnalysisDetailProps) {
 
   const { Title } = Typography;
 
-  const { setSelectedClass, classesList, methodsInClassList, columns } = useFileAnalysisDetailHook(props);
+  const { setSelectedClass, classesList, collapseItems } = useFileAnalysisDetailHook(props);
 
   return (
     <styled.FileAnalysisDetail className={`${className ?? ''}`.trim()} style={style}>
@@ -48,28 +52,17 @@ function FileAnalysisDetail(props: FileAnalysisDetailProps) {
         <div className="header">
           <Title level={2}>{fileInAnalysis.fileName}</Title>
         </div>
-        <Select
-          options={classesList}
-          onChange={(value, option) => {
-            setSelectedClass(Array.isArray(option) ? option[0].class : option.class);
-          }}
-        />
-        <Table
-          dataSource={methodsInClassList}
-          columns={columns}
-          rowKey={(record) => String(record.methodName)}
-          bordered
-          // expandable={{
-          //   expandedRowRender: (record) => (
-          //     <>
-          //       <Text strong>Description</Text>
-          //       <p style={{ margin: 0 }}>{record.description}</p>
-          //     </>
-          //   ),
-          //   rowExpandable: (record) => !!record.description,
-          // }}
-          pagination={{ position: ['bottomCenter'] }}
-        />
+        <div style={{ width: '100%' }}>
+          <Select
+            options={classesList}
+            onChange={(value, option) => {
+              setSelectedClass(Array.isArray(option) ? option[0].class : option.class);
+            }}
+          />
+        </div>
+        <div>
+          <Collapse accordion items={collapseItems} />
+        </div>
       </div>
     </styled.FileAnalysisDetail>
   );

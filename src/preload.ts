@@ -41,6 +41,9 @@ contextBridge.exposeInMainWorld('api', {
       fetchAll: () => {
         return ipcRenderer.invoke('fetch-all-bad-smell');
       },
+      fetchFromId: (badSmellIds: number[]) => {
+        return ipcRenderer.invoke('fetch-bad-smell-from-id', badSmellIds);
+      },
       new: (name: string, scope: string, detectionStrategyId?: number, description?: string) => {
         return ipcRenderer.invoke('new-bad-smell', name, scope, detectionStrategyId, description);
       },

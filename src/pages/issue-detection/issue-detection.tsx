@@ -26,7 +26,7 @@ function IssueDetection(props: IssueDetectionProps) {
 
   const [form] = Form.useForm();
 
-  const { Title, Text } = Typography;
+  const { Title } = Typography;
 
   const [submittable, setSubmittable] = React.useState(false);
 
@@ -48,6 +48,7 @@ function IssueDetection(props: IssueDetectionProps) {
     detailsOpen,
     setDetailsOpen,
     fileInAnalysis,
+    issuesToAnalyseId,
     columns,
     tableData,
     issuesList,
@@ -105,7 +106,13 @@ function IssueDetection(props: IssueDetectionProps) {
             />
           </Form.Item>
           <Form.Item name="issues" label="Issues to analyse" rules={[{ required: true }]}>
-            <Select mode="multiple" options={issuesList} onChange={(value) => onSelectChange(value)} />
+            <Select
+              mode="multiple"
+              showSearch
+              optionFilterProp="label"
+              options={issuesList}
+              onChange={(value) => onSelectChange(value)}
+            />
           </Form.Item>
           <Form.Item className="centered">
             <Button
@@ -144,22 +151,17 @@ function IssueDetection(props: IssueDetectionProps) {
             columns={columns}
             rowKey={(record) => String(record.fileName)}
             bordered
-            // expandable={{
-            //   expandedRowRender: (record) => (
-            //     <>
-            //       <Text strong>Description</Text>
-            //       <p style={{ margin: 0 }}>{record.description}</p>
-            //     </>
-            //   ),
-            //   rowExpandable: (record) => !!record.description,
-            // }}
             pagination={{ position: ['bottomCenter'] }}
           />
         </div>
       )}
     </styled.IssueDetection>
   ) : (
-    <FileAnalysisDetail fileInAnalysis={fileInAnalysis} onReturnClick={() => setDetailsOpen(false)} />
+    <FileAnalysisDetail
+      fileInAnalysis={fileInAnalysis}
+      idOfIssuesInAnalysis={issuesToAnalyseId}
+      onReturnClick={() => setDetailsOpen(false)}
+    />
   );
 }
 

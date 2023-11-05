@@ -37,7 +37,6 @@ function useIssueDetectionHook(props: IssueDetectionProps) {
     const data = [];
     for (const [fileName, fileObject] of analysisResult) {
       data.push({ fileName, ...fileObject });
-      if (fileObject.fileHasIssues) console.log(fileName);
     }
 
     console.log(data[0]);
@@ -57,6 +56,7 @@ function useIssueDetectionHook(props: IssueDetectionProps) {
       render: (_, record) => <span>{record.fileHasIssues && <CheckOutlined />}</span>,
       align: 'center',
       sorter: (a, b) => Number(a.fileHasIssues) - Number(b.fileHasIssues),
+      defaultSortOrder: 'descend',
     },
     {
       title: 'Action',
@@ -128,6 +128,7 @@ function useIssueDetectionHook(props: IssueDetectionProps) {
     detailsOpen,
     setDetailsOpen,
     fileInAnalysis,
+    issuesToAnalyseId,
   };
 }
 
