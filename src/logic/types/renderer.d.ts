@@ -47,6 +47,9 @@ export interface IAPI {
       issuesToAnalyseIds: number[],
     ) => Promise<Map<string, MetricsFile>>;
   };
+  csvGenerator: {
+    generateOutputCSV: (outputData: Map<string, MetricsFile>, idOfIssuesAnalysed: number[]) => Promise<string>;
+  };
 }
 
 declare global {

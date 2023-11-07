@@ -2,6 +2,7 @@
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 import { ipcRenderer, contextBridge } from 'electron';
 import { expression, operator } from './components/formula-builder';
+import { MetricsFile } from './logic/types';
 
 // Expose protected methods off of window (ie.
 // window.api.sendToA) in order to use ipcRenderer
@@ -58,6 +59,11 @@ contextBridge.exposeInMainWorld('api', {
   analyser: {
     runAnalysis: (classMetricsFilePath: string, methodMetricsFilePath: string, issuesToAnalyseIds: number[]) => {
       return ipcRenderer.invoke('run-analysis', classMetricsFilePath, methodMetricsFilePath, issuesToAnalyseIds);
+    },
+  },
+  csvGenerator: {
+    generateOutputCSV: (outputData: Map<string, MetricsFile>, idOfIssuesAnalysed: number[]) => {
+      return ipcRenderer.invoke('generate-output-csv', outputData, idOfIssuesAnalysed);
     },
   },
 });

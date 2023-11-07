@@ -59,6 +59,7 @@ function IssueDetection(props: IssueDetectionProps) {
     onSelectChange,
     runIssueAnalysis,
     setAnalysisResult,
+    exportAnalysisData,
   } = useIssueDetectionHook(props);
 
   return !detailsOpen ? (
@@ -145,6 +146,7 @@ function IssueDetection(props: IssueDetectionProps) {
         <div>
           <div className="header">
             <Title>Analysis Result</Title>
+            <Button onClick={exportAnalysisData}>Export Data</Button>
           </div>
           <Table
             dataSource={tableData}

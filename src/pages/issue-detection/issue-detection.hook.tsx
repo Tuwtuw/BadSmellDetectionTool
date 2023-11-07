@@ -38,8 +38,6 @@ function useIssueDetectionHook(props: IssueDetectionProps) {
     for (const [fileName, fileObject] of analysisResult) {
       data.push({ fileName, ...fileObject });
     }
-
-    console.log(data[0]);
     return data;
   }, [analysisResult]);
 
@@ -67,7 +65,6 @@ function useIssueDetectionHook(props: IssueDetectionProps) {
             onClick={() => {
               setFileInAnalysis(record);
               setDetailsOpen(true);
-              // window.open
             }}
           >
             Details
@@ -112,6 +109,10 @@ function useIssueDetectionHook(props: IssueDetectionProps) {
     [setIssuesToAnalyseId],
   );
 
+  const exportAnalysisData = () => {
+    return window.api.csvGenerator.generateOutputCSV(analysisResult, issuesToAnalyseId);
+  };
+
   return {
     columns,
     tableData,
@@ -129,6 +130,7 @@ function useIssueDetectionHook(props: IssueDetectionProps) {
     setDetailsOpen,
     fileInAnalysis,
     issuesToAnalyseId,
+    exportAnalysisData,
   };
 }
 

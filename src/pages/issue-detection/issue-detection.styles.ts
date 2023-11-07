@@ -10,6 +10,13 @@ export const IssueDetection = styled.div`
     align-items: center;
   }
 
+  .header {
+    display: flex;
+    flex: auto;
+    align-items: center;
+    justify-content: space-between;
+  }
+
   .centered-loading {
     display: flex;
     position: relative;
