@@ -49,7 +49,8 @@ const createWindow = (): void => {
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
+  mainWindow.setMenuBarVisibility(false);
 
   // Wait for content to finish loading before showing
   mainWindow.webContents.on('did-finish-load', () => {
