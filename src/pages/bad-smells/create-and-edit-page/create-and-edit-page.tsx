@@ -93,7 +93,7 @@ function CreateAndEditPage(props: CreateAndEditPageProps) {
             : {
                 name: editTarget.name,
                 scope: editTarget.scope,
-                detectionStrategy: editTarget.detectionStrategy.detectionStrategy_id,
+                detectionStrategy: editTarget.detectionStrategy?.detectionStrategy_id,
                 description: editTarget.description ?? '',
               }
         }
